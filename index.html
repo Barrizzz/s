@@ -2,123 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Ordinary Campus Life - Slider</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Number Line</title>
     <style>
         :root {
             --primary-color: #4a90e2;
             --bg-color: #f4f7f6;
-            --thumb-size: 28px; /* Defined for precise alignment calculation */
+            --thumb-size: 24px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
             background-color: var(--bg-color);
-            padding: 10px;
+            overflow: hidden; /* Lock scroll for landscape fit */
         }
 
         .main-container {
             background: white;
-            padding: 20px;
+            padding: 15px 25px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 95%;
-            max-width: 800px;
+            width: 95vw;
+            max-width: 700px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            overflow-y: auto;
-            max-height: 98vh;
+            gap: 10px;
         }
 
         .slider-section {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .slider-section:last-child { border-bottom: none; }
 
         .display-value {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: var(--primary-color);
             font-weight: bold;
-            margin-bottom: 5px;
             text-align: center;
+            margin-bottom: 2px;
         }
 
-        /* ALIGNMENT ENGINE */
         .slider-wrapper {
-            position: relative;
-            width: 100%;
-            box-sizing: border-box;
-            /* Padding must be exactly half the thumb size */
             padding: 0 calc(var(--thumb-size) / 2);
-            margin: 15px 0;
+            position: relative;
         }
 
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             background: transparent;
-            cursor: pointer;
-            /* Expand slider to cover the padding area */
             margin-left: calc(var(--thumb-size) / -2);
             width: calc(100% + var(--thumb-size));
-            display: block;
+            cursor: pointer;
+            height: 30px; /* Larger hit area for fingers */
         }
 
-        /* Thumb - Webkit (Chrome/Safari) */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             height: var(--thumb-size);
             width: var(--thumb-size);
             border-radius: 50%;
             background: var(--primary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            margin-top: -10px; /* Aligns thumb center to track center */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-top: -8px; 
         }
 
-        /* Track - Webkit */
         input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
         }
 
-        /* Firefox Support */
-        input[type="range"]::-moz-range-thumb {
-            height: var(--thumb-size);
-            width: var(--thumb-size);
-            border: none;
-            border-radius: 50%;
-            background: var(--primary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        input[type="range"]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-        }
-
-        /* Number Line Labels */
         .number-line {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
-            width: 100%;
+            margin-top: 5px;
         }
 
         .number-line span {
-            font-size: 11px;
-            color: #888;
-            width: 0; 
+            font-size: 10px;
+            color: #999;
+            width: 0;
             display: flex;
             justify-content: center;
             white-space: nowrap;
@@ -127,13 +101,33 @@
         .highlight {
             color: var(--primary-color) !important;
             font-weight: bold;
-            transform: scale(1.4);
-            transition: transform 0.1s ease;
+            transform: scale(1.3);
         }
 
+        /* --- LANDSCAPE ADJUSTMENTS --- */
         @media (max-height: 500px) {
-            .display-value { font-size: 1.2rem; }
-            .main-container { padding: 10px; }
+            .main-container {
+                gap: 2px; /* Minimal gap */
+                padding: 5px 20px;
+            }
+            .display-value {
+                font-size: 1rem; /* Smaller text */
+                margin-bottom: 0;
+            }
+            .slider-section {
+                padding: 2px 0;
+            }
+            .number-line {
+                margin-top: 2px;
+            }
+            .number-line span {
+                font-size: 9px;
+            }
+            input[type="range"] {
+                height: 20px;
+            }
+            /* Hide the border in landscape to save space */
+            .slider-section { border-bottom: none; }
         }
     </style>
 </head>
@@ -171,7 +165,6 @@
             const ticksContainer = document.getElementById(ticksId);
             const display = document.getElementById(displayId);
 
-            // Generate numbers 0-20
             for (let i = 0; i <= 20; i++) {
                 const span = document.createElement('span');
                 span.innerText = i;
@@ -181,26 +174,15 @@
 
             function updateUI(value) {
                 display.innerHTML = `${value} ${emoji}`;
-                
-                // Clear previous highlights in this specific section
-                ticksContainer.querySelectorAll('span').forEach(el => {
-                    el.classList.remove('highlight');
-                });
-
-                // Highlight new selection
+                ticksContainer.querySelectorAll('span').forEach(el => el.classList.remove('highlight'));
                 const activeTick = document.getElementById(`${tickPrefix}-tick-${value}`);
                 if (activeTick) activeTick.classList.add('highlight');
             }
 
-            slider.addEventListener('input', (e) => {
-                updateUI(e.target.value);
-            });
-
-            // Init
+            slider.addEventListener('input', (e) => updateUI(e.target.value));
             updateUI(slider.value);
         }
 
-        // Initialize all three sliders
         setupSlider('happinessSlider', 'happinessTicks', 'happinessVal', 'happiness', '😊');
         setupSlider('energySlider', 'energyTicks', 'energyVal', 'energy', '⚡');
         setupSlider('intelligenceSlider', 'intelligenceTicks', 'intelligenceVal', 'intelligence', '🎓');
