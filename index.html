@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Ordinary Campus Life - Slider</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f4f7f6;
+            --thumb-size: 28px; /* Defined for precise alignment calculation */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            padding: 10px;
+        }
+
+        .main-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 95%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            max-height: 98vh;
+        }
+
+        .slider-section {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .slider-section:last-child { border-bottom: none; }
+
+        .display-value {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        /* ALIGNMENT ENGINE */
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            /* Padding must be exactly half the thumb size */
+            padding: 0 calc(var(--thumb-size) / 2);
+            margin: 15px 0;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            /* Expand slider to cover the padding area */
+            margin-left: calc(var(--thumb-size) / -2);
+            width: calc(100% + var(--thumb-size));
+            display: block;
+        }
+
+        /* Thumb - Webkit (Chrome/Safari) */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: var(--thumb-size);
+            width: var(--thumb-size);
+            border-radius: 50%;
+            background: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-top: -10px; /* Aligns thumb center to track center */
+        }
+
+        /* Track - Webkit */
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+        }
+
+        /* Firefox Support */
+        input[type="range"]::-moz-range-thumb {
+            height: var(--thumb-size);
+            width: var(--thumb-size);
+            border: none;
+            border-radius: 50%;
+            background: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+        }
+
+        /* Number Line Labels */
+        .number-line {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .number-line span {
+            font-size: 11px;
+            color: #888;
+            width: 0; 
+            display: flex;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .highlight {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+            transform: scale(1.4);
+            transition: transform 0.1s ease;
+        }
+
+        @media (max-height: 500px) {
+            .display-value { font-size: 1.2rem; }
+            .main-container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="slider-section">
+            <div class="display-value" id="happinessVal">10 😊</div>
+            <div class="slider-wrapper">
+                <input type="range" id="happinessSlider" min="0" max="20" step="1" value="10">
+                <div class="number-line" id="happinessTicks"></div>
+            </div>
+        </div>
+
+        <div class="slider-section">
+            <div class="display-value" id="energyVal">10 ⚡</div>
+            <div class="slider-wrapper">
+                <input type="range" id="energySlider" min="0" max="20" step="1" value="10">
+                <div class="number-line" id="energyTicks"></div>
+            </div>
+        </div>
+
+        <div class="slider-section">
+            <div class="display-value" id="intelligenceVal">10 🎓</div>
+            <div class="slider-wrapper">
+                <input type="range" id="intelligenceSlider" min="0" max="20" step="1" value="10">
+                <div class="number-line" id="intelligenceTicks"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setupSlider(sliderId, ticksId, displayId, tickPrefix, emoji) {
+            const slider = document.getElementById(sliderId);
+            const ticksContainer = document.getElementById(ticksId);
+            const display = document.getElementById(displayId);
+
+            // Generate numbers 0-20
+            for (let i = 0; i <= 20; i++) {
+                const span = document.createElement('span');
+                span.innerText = i;
+                span.id = `${tickPrefix}-tick-${i}`;
+                ticksContainer.appendChild(span);
+            }
+
+            function updateUI(value) {
+                display.innerHTML = `${value} ${emoji}`;
+                
+                // Clear previous highlights in this specific section
+                ticksContainer.querySelectorAll('span').forEach(el => {
+                    el.classList.remove('highlight');
+                });
+
+                // Highlight new selection
+                const activeTick = document.getElementById(`${tickPrefix}-tick-${value}`);
+                if (activeTick) activeTick.classList.add('highlight');
+            }
+
+            slider.addEventListener('input', (e) => {
+                updateUI(e.target.value);
+            });
+
+            // Init
+            updateUI(slider.value);
+        }
+
+        // Initialize all three sliders
+        setupSlider('happinessSlider', 'happinessTicks', 'happinessVal', 'happiness', '😊');
+        setupSlider('energySlider', 'energyTicks', 'energyVal', 'energy', '⚡');
+        setupSlider('intelligenceSlider', 'intelligenceTicks', 'intelligenceVal', 'intelligence', '🎓');
+    </script>
+</body>
+</html>
